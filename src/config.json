@@ -1,6 +1,14 @@
 {
-    "Academics & JEE": [".pdf", ".docx", ".djvu"],
-    "Python & Projects": [".py", ".ipynb", ".html", ".css"],
-    "Japanese Immersion": [".txt", ".md", ".srt", ".mp3"],
-    "Media & Visuals": [".png", ".jpg", ".jpeg", ".mp4"]
+    "tesseract_path": "C:\\Program Files\\Tesseract-OCR\\tesseract.exe",
+    "taxonomy": {
+        "Academics/Physics": [".pdf", ".docx"],
+        "Academics/Math": [".pdf"],
+        "Language/Japanese": [".pdf", "png", "jpg", "jpeg"],
+        "Python & Projects": [".py", ".ipynb"]
+    },
+    "keywords": {
+        "Academics/Physics": ["thermodynamics", "kinematics", "velocity", "quantum", "optics", "magnetic", "force", "acceleration"],
+        "Academics/Math": ["calculus", "algebra", "integration", "theorem", "matrix", "probability", "derivative", "function"],
+        "Language/Japanese": ["kanji", "hiragana", "katakana", "jlpt", "vocabulary", "grammar", "particles", "nihongo", "日本語"]
+    }
 }

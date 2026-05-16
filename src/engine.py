@@ -4,24 +4,23 @@ import time
 from pathlib import Path
 from scanner import DocumentScanner
 from broker import EventBroker
-from logger import CrashLogger  # <-- NEW: Connect the Diagnostic Shield
+from logger import CrashLogger
 
 class StudySyncEngine:
     def __init__(self, target_dir):
         self.target_dir = Path(target_dir).expanduser()
+        self.config_path = Path(__file__).parent / "config.json"
         self.taxonomy = self.load_config()
         self.scanner = DocumentScanner()
         self.broker = EventBroker()
-        self.logger = CrashLogger()  # <-- NEW: Initialize Logger
+        self.logger = CrashLogger()
 
     def load_config(self):
-        current_dir = Path(__file__).parent
-        config_path = current_dir / "config.json"
         try:
-            with open(config_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+            with open(self.config_path, "r", encoding="utf-8") as f:
+                config = json.load(f)
+                return config.get("taxonomy", {})
         except Exception as e:
-            self.logger.log_exception("Failed to safely read config.json", e)
             return {"Unsorted": [".pdf", ".txt", ".jpg"]}
 
     def categorize_file(self, item):
@@ -38,24 +37,40 @@ class StudySyncEngine:
                 if ext in extensions: return category
             return None
         except Exception as e:
-            self.logger.log_exception(f"Error parsing metadata for file: {item.name}", e)
+            self.logger.log_exception(f"Metadata parsing failure: {item.name}", e)
             return None
+
+    def resolve_safe_path(self, dest_dir, file_name):
+        """--- THE COLLISION CURE --- Increments file index names if a duplicate exists."""
+        base_path = Path(dest_dir) / file_name
+        if not base_path.exists():
+            return base_path
+            
+        stem = base_path.stem
+        suffix = base_path.suffix
+        counter = 1
+        
+        # Loop sequentially until an open slot (e.g., file_1.pdf, file_2.pdf) is located
+        while (Path(dest_dir) / f"{stem}_{counter}{suffix}").exists():
+            counter += 1
+            
+        return Path(dest_dir) / f"{stem}_{counter}{suffix}"
 
     def organize(self):
         move_log = []
         if not self.target_dir.exists():
-            error_msg = "⚠️ ERROR: Target directory not found."
+            error_msg = "⚠️ ERROR: Directory path missing."
             self.broker.publish("file_moved", error_msg)
             return [error_msg]
 
         try:
             items_to_process = [item for item in self.target_dir.iterdir() if not item.is_dir()]
         except Exception as e:
-            self.logger.log_exception("Failed to read directories iteration bounds", e)
-            return ["❌ Critical storage lockout exception."]
+            self.logger.log_exception("Directory processing block", e)
+            return ["❌ Storage lockout error."]
         
         if not items_to_process:
-            self.broker.publish("file_moved", "✨ Workspace is already pristine. No actions required.")
+            self.broker.publish("file_moved", "✨ Workspace is immaculate.")
             return []
 
         for item in items_to_process:
@@ -63,17 +78,18 @@ class StudySyncEngine:
             if category:
                 destination_dir = self.target_dir / category
                 destination_dir.mkdir(parents=True, exist_ok=True) 
-                destination_path = destination_dir / item.name
+                
+                # Dynamic safety path resolution pass
+                final_destination = self.resolve_safe_path(destination_dir, item.name)
                 
                 try:
-                    shutil.move(str(item), str(destination_path))
-                    log_line = f"✅ Sorted: {item.name} ➔ {category}/"
+                    shutil.move(str(item), str(final_destination))
+                    log_line = f"✅ Sorted: {item.name} ➔ {category}/{final_destination.name}"
                     self.broker.publish("file_moved", log_line)
                     move_log.append(log_line)
                     time.sleep(0.05)
                 except Exception as e:
-                    # Capture exact operating system lockouts or access rights failures
-                    self.logger.log_exception(f"OS file system access restriction on: {item.name}", e)
+                    self.logger.log_exception(f"Access lockout on file: {item.name}", e)
                     fail_line = f"❌ System Lockout: {item.name}"
                     self.broker.publish("file_moved", fail_line)
                     move_log.append(fail_line)
