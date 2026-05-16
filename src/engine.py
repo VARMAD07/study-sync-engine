@@ -1,23 +1,31 @@
 import shutil
+import json
 from pathlib import Path
 
 class StudySyncEngine:
     def __init__(self, target_dir):
-        # expanduser() safely figures out exactly where your computer's main user folder is
         self.target_dir = Path(target_dir).expanduser()
+        self.taxonomy = self.load_config()
+
+    def load_config(self):
+        """Loads the sorting rules from our config.json file."""
+        # Find exactly where this python file lives, then look for config.json next to it
+        current_dir = Path(__file__).parent
+        config_path = current_dir / "config.json"
         
-        # Our smart academic sorting rules
-        self.TAXONOMY = {
-            'Literature': ['.pdf', '.epub'],
-            'Notes & Context': ['.docx', '.txt', '.md'],
-            'Media & Assets': ['.png', '.jpg'],
-            'Source Code': ['.py', '.ipynb', '.html']
-        }
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                print("[SYSTEM] Successfully loaded config.json")
+                return json.load(f)
+        except FileNotFoundError:
+            print("⚠️ [WARNING] config.json missing! Using fallback rules.")
+            # Fallback just in case the file gets deleted
+            return {"Unsorted": [".pdf", ".txt", ".jpg"]}
 
     def categorize_file(self, file_extension):
-        """Checks the file extension against our taxonomy map."""
+        """Checks the file extension against our loaded taxonomy."""
         ext = file_extension.lower()
-        for category, extensions in self.TAXONOMY.items():
+        for category, extensions in self.taxonomy.items():
             if ext in extensions:
                 return category
         return None
@@ -30,7 +38,7 @@ class StudySyncEngine:
             return
 
         for item in self.target_dir.iterdir():
-            # Skip existing folders
+            # Skip folders
             if item.is_dir():
                 continue
                 
@@ -47,9 +55,5 @@ class StudySyncEngine:
                 except Exception as e:
                     print(f"[ERROR] Failed to move {item.name}: {str(e)}")
 
-if __name__ == "__main__":
-    # We are pointing this safely at your Sandbox folder to protect your real files for now
-    safe_target = Path.home() / "Desktop" / "StudySandbox"
-    
-    engine = StudySyncEngine(target_dir=safe_target)
-    engine.organize()
+# (We don't need the bottom "if __name__ == '__main__'" testing block anymore 
+# because our GUI handles running the engine now!)

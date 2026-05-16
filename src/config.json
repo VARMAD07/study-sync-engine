@@ -1,0 +1,6 @@
+{
+    "Academics & JEE": [".pdf", ".docx", ".djvu"],
+    "Python & Projects": [".py", ".ipynb", ".html", ".css"],
+    "Japanese Immersion": [".txt", ".md", ".srt", ".mp3"],
+    "Media & Visuals": [".png", ".jpg", ".jpeg", ".mp4"]
+}
