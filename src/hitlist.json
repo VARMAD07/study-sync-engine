@@ -1,0 +1,22 @@
+{
+    "Discord": {
+        "exe": "discord.exe",
+        "active": true
+    },
+    "Steam": {
+        "exe": "steam.exe",
+        "active": true
+    },
+    "Spotify": {
+        "exe": "spotify.exe",
+        "active": false
+    },
+    "WhatsApp": {
+        "exe": "whatsapp.exe",
+        "active": true
+    },
+    "Epic Games": {
+        "exe": "epicgameslauncher.exe",
+        "active": true
+    }
+}
