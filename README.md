@@ -1,44 +1,110 @@
 # StudySyncEngine 🚀
 
-An automation-driven, context-aware academic workspace organizer and focus environment built from scratch in Python. It utilizes multi-threaded file monitoring, an asynchronous pub/sub event broker, and computer vision (OCR) parsing pipelines to categorize desktop clutter dynamically while protecting your attention span.
+StudySyncEngine is a Python-based desktop workspace organizer designed for students managing large amounts of study material and digital clutter.
+
+The application monitors folders in real time, analyzes incoming files using text extraction and OCR, and automatically organizes documents into subject-based directories. It also includes a lightweight focus mode that helps reduce distractions during study sessions.
+
+The goal of the project is simple: reduce friction in digital study environments and make academic workflows easier to manage.
 
 ---
 
-## 🛠️ Deep Systems Architecture
+## Features
 
-### 1. Asynchronous Multithreading & Messaging Engine
-To prevent UI-blocking frame dropouts during heavy indexing loads, `StudySyncEngine` isolates compute-heavy operations onto detached execution streams. Communication between core backend components and the UI layer is decoupled using a native **Singleton Event Message Broker (Pub/Sub)** pattern, broadcasting processing logs smoothly in real-time.
-
-### 2. Multi-Modal Optical Classification Channels
-Standard extensions aren't enough. The processing engine features context-aware pipelines to read the actual content of documents before choosing a folder destination:
-* **Text Dimension:** Integrates standard file scanners to extract structural string markers from complex multi-page PDFs.
-* **Vision Dimension:** Leverages an **Optical Character Recognition (OCR)** engine powered by Tesseract to analyze text layouts hidden directly inside raw image pixels (`.png`, `.jpg`).
-* **Multilingual Fallback:** Simultaneously scans graphic layouts for English technical concepts and Japanese characters (Kanji, Hiragana, Katakana).
-
-### 3. Automated File Warden (`watchdog`)
-Enaging the file warden hooks directly into native Windows OS filesystem event channels. The second an assignment, lecture deck, or file drops into your monitored directory, the background tracker intercepts the drop event and processes it instantly.
-
-### 4. Process-Terminating Focus Guard & Persistence Ledger
-Features a rigid commitment lockdown state that dynamically re-morphs the UI workspace layout, blocking active controls and tracking study cycles. The guard loops monitor system process tables to aggressively terminate distracting applications (`.exe`), saving your daily metrics into a local database ledger.
+- Real-time folder monitoring using Watchdog
+- OCR support for scanned notes and image-based documents
+- Automatic subject-wise file organization
+- Lightweight focus mode for reducing distractions
+- Local study statistics tracking
+- Modular event-driven architecture
 
 ---
 
-## 🗂️ Core Ecosystem Structure
+## Architecture
+
+```text
+Watchdog → Scanner → Broker → Engine → UI
+                     ↓
+                 Focus Guard
+```
+
+---
+
+## Project Structure
 
 ```text
 study-sync-engine/
 │
 ├── src/
-│   ├── main.py              # Main application entry vector
-│   ├── gui.py               # Modern Treeview Tkinter Dashboard UI
-│   ├── engine.py            # File system operational mechanics & I/O
-│   ├── scanner.py           # Multi-Modal PDF Parser & Tesseract OCR Matrix
-│   ├── watcher.py           # Background Windows Watchdog Listener
-│   ├── broker.py            # Pub/Sub Singleton Event Router
-│   ├── focus.py             # Process-terminating Focus Guard loop
-│   ├── stats.py             # Analytics persistence tracker
-│   └── logger.py            # Diagnostic crash-dump log reporter
+│   ├── main.py            # Application entry point
+│   ├── gui.py             # Tkinter dashboard interface
+│   ├── engine.py          # File organization engine
+│   ├── scanner.py         # Text extraction and OCR pipeline
+│   ├── watcher.py         # Real-time filesystem monitoring
+│   ├── broker.py          # Event messaging system
+│   ├── focus.py           # Focus mode process controller
+│   ├── stats.py           # Study statistics tracker
+│   └── logger.py          # Logging and diagnostics
 │
-├── config.json              # Dynamic taxonomy mapping schemas
-├── requirements.txt         # Package dependency blueprint
-└── StudySyncEngine.spec     # Automated PyInstaller compilation parameters
+├── tests/                 # Test modules
+├── requirements.txt       # Project dependencies
+├── config.json            # File categorization rules
+├── .gitignore
+├── .gitattributes
+└── README.md
+```
+
+---
+
+## Installation
+
+```bash
+git clone https://github.com/VARMAD07/study-sync-engine.git
+cd study-sync-engine
+pip install -r requirements.txt
+python src/main.py
+```
+
+---
+
+## Example Workflow
+
+1. A lecture PDF or image is added to the monitored folder
+2. Watchdog detects the new filesystem event
+3. Text extraction or OCR scanning begins
+4. Keywords are matched against configured subject rules
+5. The file is moved into its matching directory
+6. Study statistics are updated locally
+
+---
+
+## Design Decisions
+
+- Tkinter was chosen to keep the application lightweight and easy to run locally.
+- OCR support was added because many lecture notes are image-based scans rather than searchable PDFs.
+- The pub/sub broker was introduced after direct UI updates started causing interface freezes during larger scans.
+- Watchdog allows the engine to react instantly to filesystem events without requiring manual refreshes.
+
+---
+
+## Current Limitations
+
+- OCR accuracy depends heavily on image quality
+- Currently optimized for Windows systems
+- Large batch scans may temporarily slow the interface
+- Japanese text recognition is still experimental
+
+---
+
+## Future Improvements
+
+- Semantic document classification
+- Cloud synchronization support
+- Cross-device session persistence
+- Improved OCR accuracy for handwritten notes
+- Expanded analytics and productivity tracking
+
+---
+
+## License
+
+This project is currently intended for educational and personal use.
