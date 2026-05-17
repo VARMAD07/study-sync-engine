@@ -1,3 +1,4 @@
-﻿*.html linguist-vendored
-dist/* linguist-vendored
-build/* linguist-vendored
+﻿dist/** linguist-vendored
+build/** linguist-vendored
+*.spec linguist-generated=true
+*.html linguist-detectable=false
