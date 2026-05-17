@@ -91,7 +91,6 @@ python src/main.py
 - OCR accuracy depends heavily on image quality
 - Currently optimized for Windows systems
 - Large batch scans may temporarily slow the interface
-- Japanese text recognition is still experimental
 
 ---
 
